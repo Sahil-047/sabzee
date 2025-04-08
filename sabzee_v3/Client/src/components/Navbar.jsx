@@ -26,8 +26,8 @@ const Navbar = () => {
                 <Link to="/products" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700">
                   Products
                 </Link>
-                <Link to="/farmers" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700">
-                  Farmers
+                <Link to="/forum" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700">
+                  Community Forum
                 </Link>
                 {isAuthenticated && user?.role === 'farmer' && (
                   <>
@@ -118,8 +118,8 @@ const Navbar = () => {
             <Link to="/products" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
               Products
             </Link>
-            <Link to="/farmers" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
-              Farmers
+            <Link to="/forum" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
+              Community Forum
             </Link>
             {isAuthenticated && user?.role === 'farmer' && (
               <>

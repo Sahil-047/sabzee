@@ -325,4 +325,83 @@ export const yieldPredictionApi = {
   }
 };
 
+// Forum API calls
+export const forumApi = {
+  // Get all forum posts with optional filters
+  getPosts: async (filters = {}) => {
+    try {
+      const response = await api.get('/forum', { params: filters });
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message || 'Failed to fetch forum posts');
+      } else if (error.request) {
+        throw new Error('No response from server. Please try again.');
+      } else {
+        throw error;
+      }
+    }
+  },
+
+  // Get post by ID
+  getPostById: async (id) => {
+    try {
+      const response = await api.get(`/forum/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Create a new forum post
+  createPost: async (postData) => {
+    try {
+      const response = await api.post('/forum', postData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Update a forum post (only by author)
+  updatePost: async (id, postData) => {
+    try {
+      const response = await api.put(`/forum/${id}`, postData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Delete a forum post (only by author)
+  deletePost: async (id) => {
+    try {
+      const response = await api.delete(`/forum/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Add a comment to a post
+  addComment: async (postId, commentData) => {
+    try {
+      const response = await api.post(`/forum/${postId}/comments`, commentData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Delete a comment (only by author)
+  deleteComment: async (postId, commentId) => {
+    try {
+      const response = await api.delete(`/forum/${postId}/comments/${commentId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+};
+
 export default api; 

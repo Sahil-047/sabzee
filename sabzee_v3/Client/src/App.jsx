@@ -18,6 +18,8 @@ import CropScanDetailPage from './pages/CropScanDetailPage';
 import YieldPredictionPage from './pages/YieldPredictionPage';
 import YieldPredictionHistoryPage from './pages/YieldPredictionHistoryPage';
 import YieldPredictionDetailPage from './pages/YieldPredictionDetailPage';
+import CommunityForum from './pages/CommunityForum';
+import ForumPostDetail from './pages/ForumPostDetail';
 
 function App() {
   return (
@@ -42,6 +44,8 @@ function App() {
               <Route path="/yield-prediction" element={<YieldPredictionPage />} />
               <Route path="/yield-prediction-history" element={<YieldPredictionHistoryPage />} />
               <Route path="/yield-prediction/:predictionId" element={<YieldPredictionDetailPage />} />
+              <Route path="/forum" element={<CommunityForum />} />
+              <Route path="/forum/:postId" element={<ForumPostDetail />} />
             </Routes>
           </main>
           <ErrorBoundary fallback={
