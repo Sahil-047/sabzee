@@ -1,0 +1,169 @@
+{
+  "version": "0.0.1",
+  "name": "welcome-flow",
+  "description": "Initial greeting and user role detection flow",
+  "steps": [
+    {
+      "id": "welcome-trigger",
+      "type": "trigger",
+      "conditions": [
+        {
+          "type": "event",
+          "event": "webchat:open"
+        }
+      ],
+      "onSuccess": "detect-user-role"
+    },
+    {
+      "id": "detect-user-role",
+      "type": "action",
+      "action": "getMetadata",
+      "params": {
+        "extract": "userRole"
+      },
+      "onSuccess": "send-greeting-based-on-role"
+    },
+    {
+      "id": "send-greeting-based-on-role",
+      "type": "router",
+      "conditions": [
+        {
+          "condition": "temp.userRole === 'farmer'",
+          "go": "send-farmer-greeting"
+        },
+        {
+          "condition": "temp.userRole === 'consumer'",
+          "go": "send-consumer-greeting"
+        },
+        {
+          "condition": "true",
+          "go": "send-visitor-greeting"
+        }
+      ]
+    },
+    {
+      "id": "send-farmer-greeting",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Welcome to Sabzee! As a farmer, I can help you with crop management, disease detection, yield predictions, and more. How can I assist you today?"
+      },
+      "onComplete": "send-farmer-suggestions"
+    },
+    {
+      "id": "send-consumer-greeting",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Welcome to Sabzee! I can help you find fresh produce, track orders, and learn more about where your food comes from. What would you like to know?"
+      },
+      "onComplete": "send-consumer-suggestions"
+    },
+    {
+      "id": "send-visitor-greeting",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Welcome to Sabzee! I'm here to help you explore our farm-to-consumer marketplace. Would you like to learn more about buying or selling on our platform?"
+      },
+      "onComplete": "send-visitor-suggestions"
+    },
+    {
+      "id": "send-farmer-suggestions",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "I can help you with:",
+        "replies": [
+          {
+            "title": "How to add a new product",
+            "payload": "how_to_add_product"
+          },
+          {
+            "title": "Check crop health",
+            "payload": "check_crop_health"
+          },
+          {
+            "title": "Predict crop yield",
+            "payload": "predict_yield"
+          },
+          {
+            "title": "View order status",
+            "payload": "view_orders"
+          },
+          {
+            "title": "Update farm profile",
+            "payload": "update_profile"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "send-consumer-suggestions",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "I can help you with:",
+        "replies": [
+          {
+            "title": "Browse products",
+            "payload": "browse_products"
+          },
+          {
+            "title": "Track my order",
+            "payload": "track_order"
+          },
+          {
+            "title": "Learn about farmers",
+            "payload": "learn_about_farmers"
+          },
+          {
+            "title": "Payment methods",
+            "payload": "payment_methods"
+          },
+          {
+            "title": "Return policy",
+            "payload": "return_policy"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "send-visitor-suggestions",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "I can help you with:",
+        "replies": [
+          {
+            "title": "Create an account",
+            "payload": "create_account"
+          },
+          {
+            "title": "How Sabzee works",
+            "payload": "how_it_works"
+          },
+          {
+            "title": "Seller information",
+            "payload": "seller_info"
+          },
+          {
+            "title": "Customer reviews",
+            "payload": "customer_reviews"
+          },
+          {
+            "title": "Browse products",
+            "payload": "browse_products"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "end-flow",
+      "type": "end"
+    }
+  ]
+} 

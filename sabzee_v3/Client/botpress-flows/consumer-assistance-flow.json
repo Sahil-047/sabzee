@@ -1,0 +1,308 @@
+{
+  "version": "0.0.1",
+  "name": "consumer-assistance-flow",
+  "description": "Flow for handling consumer-specific questions and assistance",
+  "steps": [
+    {
+      "id": "consumer-assistance-trigger",
+      "type": "trigger",
+      "conditions": [
+        {
+          "type": "intent",
+          "intent": "consumer_assistance"
+        }
+      ],
+      "onSuccess": "check-consumer-role"
+    },
+    {
+      "id": "check-consumer-role",
+      "type": "action",
+      "action": "getMetadata",
+      "params": {
+        "extract": "userRole"
+      },
+      "onSuccess": "present-consumer-topics"
+    },
+    {
+      "id": "present-consumer-topics",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "I can help you find products, track orders, and learn more about our farmers. What would you like assistance with?"
+      },
+      "onComplete": "show-consumer-options"
+    },
+    {
+      "id": "show-consumer-options",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Popular topics:",
+        "replies": [
+          {
+            "title": "Find Products",
+            "payload": "find_products"
+          },
+          {
+            "title": "Track Order",
+            "payload": "track_order"
+          },
+          {
+            "title": "Payment Methods",
+            "payload": "payment_methods"
+          },
+          {
+            "title": "Delivery Information",
+            "payload": "delivery_info"
+          },
+          {
+            "title": "About Our Farmers",
+            "payload": "about_farmers"
+          }
+        ]
+      },
+      "onComplete": "wait-for-topic-selection"
+    },
+    {
+      "id": "wait-for-topic-selection",
+      "type": "wait",
+      "onReceive": "handle-consumer-topic"
+    },
+    {
+      "id": "handle-consumer-topic",
+      "type": "router",
+      "conditions": [
+        {
+          "condition": "event.payload === 'find_products'",
+          "go": "explain-finding-products"
+        },
+        {
+          "condition": "event.payload === 'track_order'",
+          "go": "explain-order-tracking"
+        },
+        {
+          "condition": "event.payload === 'payment_methods'",
+          "go": "explain-payment-methods"
+        },
+        {
+          "condition": "event.payload === 'delivery_info'",
+          "go": "explain-delivery"
+        },
+        {
+          "condition": "event.payload === 'about_farmers'",
+          "go": "explain-about-farmers"
+        },
+        {
+          "condition": "true",
+          "go": "fallback-consumer-response"
+        }
+      ]
+    },
+    {
+      "id": "explain-finding-products",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Sabzee offers a wide variety of fresh, locally-grown produce directly from farmers. To find products:\n\n1. Browse the Products page\n2. Use filters to narrow down by category, price range, or location\n3. Search for specific items using the search bar\n4. Sort results by popularity, price, or freshness\n5. View product details including farm information and reviews\n\nYou can also save favorite products and create shopping lists for regular purchases."
+      },
+      "onComplete": "offer-products-navigation"
+    },
+    {
+      "id": "offer-products-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to:",
+        "replies": [
+          {
+            "title": "Browse Products",
+            "payload": "navigate_products"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-order-tracking",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Tracking your orders on Sabzee is simple:\n\n1. Go to your profile page\n2. Click on 'Order History' to see all your orders\n3. Select the specific order you want to track\n4. View real-time status updates including preparation, packing, and shipping\n5. Communicate directly with the farmer if you have questions\n\nYou'll also receive email notifications at each stage of the order process."
+      },
+      "onComplete": "offer-profile-navigation"
+    },
+    {
+      "id": "offer-profile-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to:",
+        "replies": [
+          {
+            "title": "View My Orders",
+            "payload": "navigate_profile"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-payment-methods",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Sabzee supports multiple secure payment methods:\n\n1. Credit/Debit Cards (Visa, Mastercard, American Express)\n2. Digital Wallets (PayPal, Google Pay, Apple Pay)\n3. UPI payments\n4. Internet Banking\n5. Cash on Delivery (for eligible areas)\n\nAll online payments are processed through secure gateways with encryption to protect your financial information. You can manage your preferred payment methods in your profile settings."
+      },
+      "onComplete": "ask-payment-followup"
+    },
+    {
+      "id": "ask-payment-followup",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to know more about:",
+        "replies": [
+          {
+            "title": "Payment Security",
+            "payload": "payment_security"
+          },
+          {
+            "title": "Refund Policy",
+            "payload": "refund_policy"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "wait-for-payment-followup"
+    },
+    {
+      "id": "wait-for-payment-followup",
+      "type": "wait",
+      "onReceive": "handle-payment-followup"
+    },
+    {
+      "id": "handle-payment-followup",
+      "type": "router",
+      "conditions": [
+        {
+          "condition": "event.payload === 'payment_security'",
+          "go": "explain-payment-security"
+        },
+        {
+          "condition": "event.payload === 'refund_policy'",
+          "go": "explain-refund-policy"
+        },
+        {
+          "condition": "true",
+          "go": "show-consumer-options"
+        }
+      ]
+    },
+    {
+      "id": "explain-payment-security",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "At Sabzee, we prioritize the security of your payment information:\n\n- All transactions use SSL encryption\n- We comply with PCI DSS standards\n- We never store complete credit card information\n- Our platform uses fraud detection systems\n- Two-factor authentication is available for all accounts\n\nIf you notice any suspicious activity, please contact our support team immediately."
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-refund-policy",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Our refund policy ensures you're satisfied with your purchase:\n\n- If products arrive damaged or spoiled, you're eligible for a full refund\n- Quality issues must be reported within 24 hours of delivery with photos\n- Refunds are processed within 5-7 business days\n- For order cancellations before shipping, refunds are immediate\n- Store credit options are available as an alternative to monetary refunds\n\nFor specific concerns, you can always reach out to the farmer directly or contact our support team."
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-delivery",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Sabzee delivers fresh produce directly from farms to your doorstep:\n\n- Standard delivery: 1-3 days depending on your location\n- Express delivery: Same day or next day in select areas\n- Delivery fees vary based on distance and order value\n- Free delivery on orders above ₹500\n- Contactless delivery options available\n- Real-time tracking through our app or website\n\nDelivery slots can be selected during checkout based on availability. Our eco-friendly packaging ensures products remain fresh during transit."
+      },
+      "onComplete": "ask-delivery-followup"
+    },
+    {
+      "id": "ask-delivery-followup",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to know more about:",
+        "replies": [
+          {
+            "title": "Delivery Areas",
+            "payload": "delivery_areas"
+          },
+          {
+            "title": "Product Packaging",
+            "payload": "product_packaging"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-about-farmers",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Sabzee partners with local farmers who follow sustainable and responsible farming practices:\n\n- All farmers are verified and vetted for quality standards\n- Farmer profiles include information about their farming methods\n- Many practice organic or low-intervention farming\n- You can view farmer ratings and reviews from other customers\n- Direct communication with farmers is available for specific questions\n\nBy purchasing from Sabzee, you're supporting local agriculture and reducing the carbon footprint associated with long supply chains."
+      },
+      "onComplete": "offer-farmers-explore"
+    },
+    {
+      "id": "offer-farmers-explore",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to:",
+        "replies": [
+          {
+            "title": "Explore Products",
+            "payload": "navigate_products"
+          },
+          {
+            "title": "Learn about sustainability",
+            "payload": "sustainability_practices"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "fallback-consumer-response",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "I'm still learning about that topic. Would you like to explore other consumer resources or have a specific question I might be able to help with?"
+      },
+      "onComplete": "show-consumer-options"
+    },
+    {
+      "id": "end-flow",
+      "type": "end"
+    }
+  ]
+} 

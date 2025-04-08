@@ -1,0 +1,369 @@
+{
+  "version": "0.0.1",
+  "name": "navigation-flow",
+  "description": "Flow for helping users navigate the website based on their role and intent",
+  "steps": [
+    {
+      "id": "navigation-trigger",
+      "type": "trigger",
+      "conditions": [
+        {
+          "type": "intent",
+          "intent": "navigation"
+        }
+      ],
+      "onSuccess": "get-user-context"
+    },
+    {
+      "id": "get-user-context",
+      "type": "action",
+      "action": "getMetadata",
+      "params": {
+        "extract": ["userRole", "currentPath"]
+      },
+      "onSuccess": "check-current-location"
+    },
+    {
+      "id": "check-current-location",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "I see you're currently on {{temp.currentPath || 'our website'}}. Where would you like to go?"
+      },
+      "onComplete": "suggest-navigation-by-role"
+    },
+    {
+      "id": "suggest-navigation-by-role",
+      "type": "router",
+      "conditions": [
+        {
+          "condition": "temp.userRole === 'farmer'",
+          "go": "suggest-farmer-navigation"
+        },
+        {
+          "condition": "temp.userRole === 'consumer'",
+          "go": "suggest-consumer-navigation"
+        },
+        {
+          "condition": "true",
+          "go": "suggest-visitor-navigation"
+        }
+      ]
+    },
+    {
+      "id": "suggest-farmer-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Popular destinations for farmers:",
+        "replies": [
+          {
+            "title": "Dashboard",
+            "payload": "navigate_dashboard"
+          },
+          {
+            "title": "Add Product",
+            "payload": "navigate_add_product"
+          },
+          {
+            "title": "Crop Scan",
+            "payload": "navigate_crop_scan"
+          },
+          {
+            "title": "Yield Prediction",
+            "payload": "navigate_yield_prediction"
+          },
+          {
+            "title": "Profile",
+            "payload": "navigate_profile"
+          },
+          {
+            "title": "Homepage",
+            "payload": "navigate_home"
+          }
+        ]
+      },
+      "onComplete": "wait-for-navigation-selection"
+    },
+    {
+      "id": "suggest-consumer-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Popular destinations for shoppers:",
+        "replies": [
+          {
+            "title": "Browse Products",
+            "payload": "navigate_products"
+          },
+          {
+            "title": "My Orders",
+            "payload": "navigate_profile"
+          },
+          {
+            "title": "My Profile",
+            "payload": "navigate_profile"
+          },
+          {
+            "title": "Homepage",
+            "payload": "navigate_home"
+          }
+        ]
+      },
+      "onComplete": "wait-for-navigation-selection"
+    },
+    {
+      "id": "suggest-visitor-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Where would you like to go?",
+        "replies": [
+          {
+            "title": "Browse Products",
+            "payload": "navigate_products"
+          },
+          {
+            "title": "Register",
+            "payload": "navigate_register"
+          },
+          {
+            "title": "Login",
+            "payload": "navigate_login"
+          },
+          {
+            "title": "Homepage",
+            "payload": "navigate_home"
+          }
+        ]
+      },
+      "onComplete": "wait-for-navigation-selection"
+    },
+    {
+      "id": "wait-for-navigation-selection",
+      "type": "wait",
+      "onReceive": "process-navigation-request"
+    },
+    {
+      "id": "process-navigation-request",
+      "type": "router",
+      "conditions": [
+        {
+          "condition": "event.payload === 'navigate_home'",
+          "go": "navigate-to-home"
+        },
+        {
+          "condition": "event.payload === 'navigate_products'",
+          "go": "navigate-to-products"
+        },
+        {
+          "condition": "event.payload === 'navigate_dashboard'",
+          "go": "navigate-to-dashboard"
+        },
+        {
+          "condition": "event.payload === 'navigate_add_product'",
+          "go": "navigate-to-add-product"
+        },
+        {
+          "condition": "event.payload === 'navigate_crop_scan'",
+          "go": "navigate-to-crop-scan"
+        },
+        {
+          "condition": "event.payload === 'navigate_yield_prediction'",
+          "go": "navigate-to-yield-prediction"
+        },
+        {
+          "condition": "event.payload === 'navigate_profile'",
+          "go": "navigate-to-profile"
+        },
+        {
+          "condition": "event.payload === 'navigate_register'",
+          "go": "navigate-to-register"
+        },
+        {
+          "condition": "event.payload === 'navigate_login'",
+          "go": "navigate-to-login"
+        },
+        {
+          "condition": "true",
+          "go": "navigation-fallback"
+        }
+      ]
+    },
+    {
+      "id": "navigate-to-home",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to the homepage..."
+      },
+      "onComplete": "perform-home-navigation"
+    },
+    {
+      "id": "perform-home-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigate-to-products",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to the products page..."
+      },
+      "onComplete": "perform-products-navigation"
+    },
+    {
+      "id": "perform-products-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/products"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigate-to-dashboard",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to your dashboard..."
+      },
+      "onComplete": "perform-dashboard-navigation"
+    },
+    {
+      "id": "perform-dashboard-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/dashboard"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigate-to-add-product",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to the add product page..."
+      },
+      "onComplete": "perform-add-product-navigation"
+    },
+    {
+      "id": "perform-add-product-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/add-product"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigate-to-crop-scan",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to the crop scan page..."
+      },
+      "onComplete": "perform-crop-scan-navigation"
+    },
+    {
+      "id": "perform-crop-scan-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/crop-scan"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigate-to-yield-prediction",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to the yield prediction page..."
+      },
+      "onComplete": "perform-yield-prediction-navigation"
+    },
+    {
+      "id": "perform-yield-prediction-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/yield-prediction"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigate-to-profile",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to your profile page..."
+      },
+      "onComplete": "perform-profile-navigation"
+    },
+    {
+      "id": "perform-profile-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/profile"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigate-to-register",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to the registration page..."
+      },
+      "onComplete": "perform-register-navigation"
+    },
+    {
+      "id": "perform-register-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/register"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigate-to-login",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Taking you to the login page..."
+      },
+      "onComplete": "perform-login-navigation"
+    },
+    {
+      "id": "perform-login-navigation",
+      "type": "action",
+      "action": "navigateTo",
+      "params": {
+        "url": "/login"
+      },
+      "onSuccess": "end-flow"
+    },
+    {
+      "id": "navigation-fallback",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "I'm not sure where you'd like to go. Please select from the available options."
+      },
+      "onComplete": "suggest-navigation-by-role"
+    },
+    {
+      "id": "end-flow",
+      "type": "end"
+    }
+  ]
+} 

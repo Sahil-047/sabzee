@@ -1,0 +1,317 @@
+{
+  "version": "0.0.1",
+  "name": "farmer-assistance-flow",
+  "description": "Flow for handling farmer-specific questions and assistance",
+  "steps": [
+    {
+      "id": "farmer-assistance-trigger",
+      "type": "trigger",
+      "conditions": [
+        {
+          "type": "intent",
+          "intent": "farmer_assistance"
+        }
+      ],
+      "onSuccess": "check-farmer-role"
+    },
+    {
+      "id": "check-farmer-role",
+      "type": "action",
+      "action": "getMetadata",
+      "params": {
+        "extract": "userRole"
+      },
+      "onSuccess": "verify-is-farmer"
+    },
+    {
+      "id": "verify-is-farmer",
+      "type": "router",
+      "conditions": [
+        {
+          "condition": "temp.userRole === 'farmer'",
+          "go": "present-farmer-topics"
+        },
+        {
+          "condition": "true",
+          "go": "non-farmer-response"
+        }
+      ]
+    },
+    {
+      "id": "non-farmer-response",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "It looks like you're interested in farmer resources. Would you like to create a farmer account to access these features?"
+      },
+      "onComplete": "offer-registration"
+    },
+    {
+      "id": "offer-registration",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "You can:",
+        "replies": [
+          {
+            "title": "Register as a farmer",
+            "payload": "navigate_register"
+          },
+          {
+            "title": "Learn about farmer benefits",
+            "payload": "farmer_benefits"
+          },
+          {
+            "title": "Continue as consumer",
+            "payload": "continue_as_consumer"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "present-farmer-topics",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "I can help you with various farming topics. What would you like to know about?"
+      },
+      "onComplete": "show-farmer-options"
+    },
+    {
+      "id": "show-farmer-options",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Popular topics:",
+        "replies": [
+          {
+            "title": "Crop Disease Detection",
+            "payload": "explain_crop_diseases"
+          },
+          {
+            "title": "Yield Prediction",
+            "payload": "explain_yield_prediction"
+          },
+          {
+            "title": "Adding Products",
+            "payload": "how_to_add_product"
+          },
+          {
+            "title": "Managing Orders",
+            "payload": "managing_orders"
+          },
+          {
+            "title": "Weather Impact",
+            "payload": "weather_impact"
+          }
+        ]
+      },
+      "onComplete": "wait-for-topic-selection"
+    },
+    {
+      "id": "wait-for-topic-selection",
+      "type": "wait",
+      "onReceive": "handle-farmer-topic"
+    },
+    {
+      "id": "handle-farmer-topic",
+      "type": "router",
+      "conditions": [
+        {
+          "condition": "event.payload === 'explain_crop_diseases'",
+          "go": "explain-crop-diseases"
+        },
+        {
+          "condition": "event.payload === 'explain_yield_prediction'",
+          "go": "explain-yield-prediction"
+        },
+        {
+          "condition": "event.payload === 'how_to_add_product'",
+          "go": "explain-adding-products"
+        },
+        {
+          "condition": "event.payload === 'managing_orders'",
+          "go": "explain-managing-orders"
+        },
+        {
+          "condition": "event.payload === 'weather_impact'",
+          "go": "explain-weather-impact"
+        },
+        {
+          "condition": "true",
+          "go": "fallback-farmer-response"
+        }
+      ]
+    },
+    {
+      "id": "explain-crop-diseases",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Our AI-powered crop disease detection system helps you identify problems with your crops early. Simply take a clear photo of the affected plant, upload it through the Crop Scan page, and our system will analyze it to identify the disease and provide treatment recommendations."
+      },
+      "onComplete": "offer-crop-scan-navigation"
+    },
+    {
+      "id": "offer-crop-scan-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to:",
+        "replies": [
+          {
+            "title": "Go to Crop Scan",
+            "payload": "navigate_crop_scan"
+          },
+          {
+            "title": "View scan history",
+            "payload": "navigate_crop_scan_history"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-yield-prediction",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Our yield prediction tool uses machine learning to forecast your harvest yields. It analyzes factors like soil type, crop variety, weather data, and historical patterns to provide accurate estimates. This helps you with planning, resource allocation, and potential market opportunities."
+      },
+      "onComplete": "offer-yield-prediction-navigation"
+    },
+    {
+      "id": "offer-yield-prediction-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to:",
+        "replies": [
+          {
+            "title": "Predict Yield Now",
+            "payload": "navigate_yield_prediction"
+          },
+          {
+            "title": "View prediction history",
+            "payload": "navigate_yield_prediction_history"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-adding-products",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "To add your products for sale on Sabzee:\n\n1. Go to the 'Add Product' page from your dashboard\n2. Upload clear images of your produce\n3. Provide details like product name, category, price, quantity, and description\n4. Include information about organic certification if applicable\n5. Set availability and delivery options\n6. Submit for review\n\nYour product will be live once approved!"
+      },
+      "onComplete": "offer-add-product-navigation"
+    },
+    {
+      "id": "offer-add-product-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to:",
+        "replies": [
+          {
+            "title": "Add Product Now",
+            "payload": "navigate_add_product"
+          },
+          {
+            "title": "View my products",
+            "payload": "navigate_dashboard"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-managing-orders",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Managing orders on Sabzee is simple:\n\n1. View incoming orders on your dashboard\n2. Accept or decline orders based on your availability\n3. Update order status as you prepare and ship items\n4. Communicate with customers through the messaging system\n5. Track payments and download invoices\n\nAll order history is stored for your reference and financial records."
+      },
+      "onComplete": "offer-orders-navigation"
+    },
+    {
+      "id": "offer-orders-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to:",
+        "replies": [
+          {
+            "title": "View Orders",
+            "payload": "navigate_dashboard"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "explain-weather-impact",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "Weather conditions significantly impact crop yields and health. Our platform integrates real-time weather data to help you make informed decisions:\n\n- Temperature affects growth rates and stress levels\n- Rainfall impacts irrigation needs\n- Humidity can influence disease susceptibility\n- Wind conditions affect pollination and physical damage risk\n\nThe yield prediction tool factors in current and forecasted weather for your specific location to provide more accurate results."
+      },
+      "onComplete": "offer-weather-related-navigation"
+    },
+    {
+      "id": "offer-weather-related-navigation",
+      "type": "message",
+      "message": {
+        "type": "quickReplies",
+        "text": "Would you like to:",
+        "replies": [
+          {
+            "title": "Check Yield Prediction",
+            "payload": "navigate_yield_prediction"
+          },
+          {
+            "title": "Scan Crops for Disease",
+            "payload": "navigate_crop_scan"
+          },
+          {
+            "title": "Ask another question",
+            "payload": "ask_another_question"
+          }
+        ]
+      },
+      "onComplete": "end-flow"
+    },
+    {
+      "id": "fallback-farmer-response",
+      "type": "message",
+      "message": {
+        "type": "text",
+        "text": "I'm still learning about that topic. Would you like to explore other farming resources or have a specific question I might be able to help with?"
+      },
+      "onComplete": "show-farmer-options"
+    },
+    {
+      "id": "end-flow",
+      "type": "end"
+    }
+  ]
+} 
