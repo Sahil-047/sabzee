@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isFarmer } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -26,11 +26,12 @@ const Navbar = () => {
                 <Link to="/products" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700">
                   Products
                 </Link>
-                <Link to="/forum" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700">
-                  Community Forum
-                </Link>
-                {isAuthenticated && user?.role === 'farmer' && (
+                
+                {isAuthenticated && isFarmer() && (
                   <>
+                    <Link to="/forum" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700">
+                      Farmers Forum
+                    </Link>
                     <Link to="/dashboard" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700">
                       Dashboard
                     </Link>
@@ -50,7 +51,7 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <div className="flex items-center">
                   <span className="mr-4">Hi, {user?.name}</span>
-                  {user?.role === 'farmer' && (
+                  {isFarmer() && (
                     <>
                       <Link to="/add-product" className="mr-4 px-3 py-1 bg-white text-green-600 rounded-md text-sm font-medium hover:bg-gray-100">
                         Add Product
@@ -118,11 +119,12 @@ const Navbar = () => {
             <Link to="/products" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
               Products
             </Link>
-            <Link to="/forum" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
-              Community Forum
-            </Link>
-            {isAuthenticated && user?.role === 'farmer' && (
+            
+            {isAuthenticated && isFarmer() && (
               <>
+                <Link to="/forum" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
+                  Farmers Forum
+                </Link>
                 <Link to="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
                   Dashboard
                 </Link>
@@ -142,7 +144,7 @@ const Navbar = () => {
                 <Link to="/profile" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
                   Profile
                 </Link>
-                {user?.role === 'farmer' && (
+                {isFarmer() && (
                   <>
                     <Link to="/add-product" className="block px-3 py-2 rounded-md text-base font-medium hover:bg-green-700">
                       Add Product

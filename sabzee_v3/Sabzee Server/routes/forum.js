@@ -193,19 +193,47 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    // Increment view count
-    const post = await ForumPost.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { views: 1 } },
-      { new: true }
-    )
-    .populate('author', 'name profileImage role')
-    .populate('comments.author', 'name profileImage role');
-
-    if (!post) {
+    // First fetch the post without incrementing views
+    const existingPost = await ForumPost.findById(req.params.id);
+    
+    if (!existingPost) {
       return res.status(404).json({ message: 'Post not found' });
     }
+    
+    // Check if the request has a client identifier (IP or user ID)
+    const viewerId = req.headers['x-forwarded-for'] || 
+                     req.connection.remoteAddress || 
+                     req.user?.id || 
+                     'anonymous';
+    
+    // Get the current time
+    const currentTime = new Date();
+    
+    // We'll store viewer data in a separate collection or session store in a real app
+    // For now, we'll use a simple approach - check last view timestamp in the request
+    const lastViewTime = req.get('Last-View-Time');
+    const shouldIncrementView = !lastViewTime || 
+                               (currentTime - new Date(lastViewTime)) > 30 * 60 * 1000; // 30 minutes
+    
+    // Only increment the view if needed
+    let post;
+    if (shouldIncrementView) {
+      post = await ForumPost.findByIdAndUpdate(
+        req.params.id,
+        { $inc: { views: 1 } },
+        { new: true }
+      )
+      .populate('author', 'name profileImage role')
+      .populate('comments.author', 'name profileImage role');
+    } else {
+      post = await ForumPost.findById(req.params.id)
+        .populate('author', 'name profileImage role')
+        .populate('comments.author', 'name profileImage role');
+    }
 
+    // Set a header to track the last view time
+    res.set('Last-View-Time', currentTime.toISOString());
+    
     res.json({ post });
   } catch (err) {
     console.error(err.message);

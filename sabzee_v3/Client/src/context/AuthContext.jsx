@@ -1,8 +1,17 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
 export const AuthContext = createContext();
+
+// Custom hook to use the auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -87,6 +96,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Check if the current user is a farmer
+  const isFarmer = () => {
+    return user && (user.role === 'farmer' || user.userType === 'farmer');
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -96,6 +110,7 @@ export const AuthProvider = ({ children }) => {
         register,
         login,
         logout,
+        isFarmer,
         isAuthenticated: !!user
       }}
     >

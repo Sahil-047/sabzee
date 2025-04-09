@@ -346,7 +346,25 @@ export const forumApi = {
   // Get post by ID
   getPostById: async (id) => {
     try {
-      const response = await api.get(`/forum/${id}`);
+      // Get stored last view time from localStorage
+      const lastViewTimes = JSON.parse(localStorage.getItem('postViewTimes') || '{}');
+      const lastViewTime = lastViewTimes[id];
+      
+      // Include the header if we have a stored last view time
+      const headers = {};
+      if (lastViewTime) {
+        headers['Last-View-Time'] = lastViewTime;
+      }
+      
+      const response = await api.get(`/forum/${id}`, { headers });
+      
+      // Store the new Last-View-Time header for future requests
+      const newLastViewTime = response.headers['last-view-time'];
+      if (newLastViewTime) {
+        lastViewTimes[id] = newLastViewTime;
+        localStorage.setItem('postViewTimes', JSON.stringify(lastViewTimes));
+      }
+      
       return response.data;
     } catch (error) {
       throw error;

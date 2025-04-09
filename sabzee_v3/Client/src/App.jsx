@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import ChatBot from './components/ChatBot';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -20,6 +20,22 @@ import YieldPredictionHistoryPage from './pages/YieldPredictionHistoryPage';
 import YieldPredictionDetailPage from './pages/YieldPredictionDetailPage';
 import CommunityForum from './pages/CommunityForum';
 import ForumPostDetail from './pages/ForumPostDetail';
+import AccessDenied from './pages/AccessDenied';
+
+// Protected route component for farmers only
+const FarmerRoute = ({ children }) => {
+  const { isAuthenticated, isFarmer } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (!isFarmer()) {
+    return <Navigate to="/access-denied" />;
+  }
+  
+  return children;
+};
 
 function App() {
   return (
@@ -44,8 +60,17 @@ function App() {
               <Route path="/yield-prediction" element={<YieldPredictionPage />} />
               <Route path="/yield-prediction-history" element={<YieldPredictionHistoryPage />} />
               <Route path="/yield-prediction/:predictionId" element={<YieldPredictionDetailPage />} />
-              <Route path="/forum" element={<CommunityForum />} />
-              <Route path="/forum/:postId" element={<ForumPostDetail />} />
+              <Route path="/forum" element={
+                <FarmerRoute>
+                  <CommunityForum />
+                </FarmerRoute>
+              } />
+              <Route path="/forum/:postId" element={
+                <FarmerRoute>
+                  <ForumPostDetail />
+                </FarmerRoute>
+              } />
+              <Route path="/access-denied" element={<AccessDenied />} />
             </Routes>
           </main>
           <ErrorBoundary fallback={
